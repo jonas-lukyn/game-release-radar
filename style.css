@@ -3,13 +3,38 @@ body {
     font-family: Arial, sans-serif;
     margin: 2em;
     background-color: #f2f2f2;
+    color: #333;
     position: relative;
     overflow-x: hidden;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.dark {
+    background-color: #1e1e1e;
+    color: #eee;
 }
 
 h1 {
-    color: #333;
-    margin-right: 10px;
+    margin: 0;
+}
+
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1em;
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
 }
 
 label, select {
@@ -28,19 +53,38 @@ li {
     padding: 1em;
     border-radius: 5px;
     box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    transition: background-color 0.3s, color 0.3s;
 }
 
-/* Pikachu vpravo nahoře */
+.dark li {
+    background: #2a2a2a;
+    color: #eee;
+}
+
+/* Pikachu loop animation */
 .pikachu-right {
     position: absolute;
     top: 10px;
-    right: 10px;
+    right: -100px;
     width: 80px;
     z-index: 10;
-    animation: run-side 2s linear infinite alternate;
+    animation: pikachu-loop 8s linear infinite;
 }
 
-@keyframes run-side {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-10px); }
+@keyframes pikachu-loop {
+    0% {
+        right: -100px;
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        right: 100%;
+        opacity: 1;
+    }
+    100% {
+        right: 100%;
+        opacity: 0;
+    }
 }
