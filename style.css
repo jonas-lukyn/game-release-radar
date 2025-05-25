@@ -9,16 +9,7 @@ body {
 
 h1 {
     color: #333;
-    display: inline-block;
     margin-right: 10px;
-    vertical-align: middle;
-}
-
-.title-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 1em;
 }
 
 label, select {
@@ -39,13 +30,17 @@ li {
     box-shadow: 0 0 5px rgba(0,0,0,0.1);
 }
 
-/* Pikachu vedle nadpisu */
-.pikachu-inline {
+/* Pikachu vpravo nahoře */
+.pikachu-right {
+    position: absolute;
+    top: 10px;
+    right: 10px;
     width: 80px;
-    animation: run-inline 2s linear infinite alternate;
+    z-index: 10;
+    animation: run-side 2s linear infinite alternate;
 }
 
-@keyframes run-inline {
+@keyframes run-side {
     0% { transform: translateX(0); }
-    100% { transform: translateX(10px); }
+    100% { transform: translateX(-10px); }
 }
