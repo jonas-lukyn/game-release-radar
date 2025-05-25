@@ -15,14 +15,19 @@ body {
 }
 
 h1 {
-    margin: 0;
+    margin: 0 0 1em 0;
 }
 
-.top-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+label, select {
     margin-bottom: 1em;
+    display: inline-block;
+}
+
+.actions {
+    margin-bottom: 1em;
+    display: flex;
+    gap: 1em;
+    align-items: center;
 }
 
 .theme-toggle {
@@ -35,11 +40,6 @@ h1 {
 
 .theme-toggle:hover {
     transform: scale(1.1);
-}
-
-label, select {
-    margin-bottom: 1em;
-    display: inline-block;
 }
 
 ul {
@@ -61,17 +61,17 @@ li {
     color: #eee;
 }
 
-/* Pikachu loop animation */
-.pikachu-right {
+/* Pikachu loop animation from right to left across screen */
+.pikachu-loop {
     position: absolute;
     top: 10px;
     right: -100px;
     width: 80px;
     z-index: 10;
-    animation: pikachu-loop 8s linear infinite;
+    animation: run-left 10s linear infinite;
 }
 
-@keyframes pikachu-loop {
+@keyframes run-left {
     0% {
         right: -100px;
         opacity: 0;
@@ -80,11 +80,11 @@ li {
         opacity: 1;
     }
     90% {
-        right: 100%;
+        right: 100vw;
         opacity: 1;
     }
     100% {
-        right: 100%;
+        right: 100vw;
         opacity: 0;
     }
 }

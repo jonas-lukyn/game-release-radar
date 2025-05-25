@@ -7,19 +7,19 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="top-bar">
-        <h1>🕹️ Game Release Radar</h1>
-        <button id="theme-toggle" class="theme-toggle" title="Přepnout režim">🌙</button>
-    </div>
+    <h1>🕹️ Game Release Radar</h1>
 
-    <img src="mafia-lace-pikachu-run400px.gif" alt="Running Pikachu" class="pikachu-right">
+    <img src="mafia-lace-pikachu-run400px.gif" alt="Running Pikachu" class="pikachu-loop">
 
     <label for="platform-filter">Filtrovat podle platformy:</label>
     <select id="platform-filter">
         <option value="all">Vše</option>
     </select>
 
-    <button id="toggle-favorites" data-mode="all" style="margin-left: 1em;">Zobrazit oblíbené</button>
+    <div class="actions">
+        <button id="toggle-favorites" data-mode="all">Zobrazit oblíbené</button>
+        <button id="theme-toggle" class="theme-toggle" title="Přepnout režim">🌙</button>
+    </div>
 
     <ul id="game-list"></ul>
 
