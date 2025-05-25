@@ -1,13 +1,25 @@
 
 async function loadGames() {
-    const response = await fetch('games.json');
-    const games = await response.json();
+    const response = await fetch('https://api.rawg.io/api/games?dates=2025-01-01,2025-12-31&ordering=released&key=318c95baaf5446f0a2188c65d62251df');
+    const data = await response.json();
+    const games = data.results.map(game => {
+        return {
+            title: game.name,
+            release_date: game.released,
+            platform: game.platforms?.map(p => p.platform.name).join(', ') || 'Neznámé'
+        };
+    });
+
     setupFilter(games);
     setupToggle(games);
 }
 
 function setupFilter(games) {
+    const platforms = new Set(games.flatMap(g => g.platform.split(', ')));
     const filter = document.getElementById('platform-filter');
+    filter.innerHTML = '<option value="all">Vše</option>' +
+        Array.from(platforms).map(p => `<option value="${p}">${p}</option>`).join('');
+
     filter.addEventListener('change', () => {
         renderGames(games);
     });
@@ -30,7 +42,8 @@ function renderGames(games) {
 
     list.innerHTML = '';
 
-    let filteredGames = games.filter(game => platform === 'all' || game.platform === platform);
+    let filteredGames = games.filter(game => 
+        platform === 'all' || game.platform.includes(platform));
     if (mode === 'favorites') {
         filteredGames = filteredGames.filter(game => favorites.includes(game.title));
     }
