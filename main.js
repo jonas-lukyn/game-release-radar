@@ -1,9 +1,11 @@
 
 let allGames = [];
 let favorites = [];
+let currentPage = 1;
+const pageSize = 20;
 
-async function loadGames() {
-    const response = await fetch('https://api.rawg.io/api/games?dates=2025-01-01,2025-12-31&ordering=-added&page_size=100&key=318c95baaf5446f0a2188c65d62251df');
+async function loadGames(page = 1) {
+    const response = await fetch(`https://api.rawg.io/api/games?dates=2025-01-01,2025-12-31&ordering=-added&page_size=${pageSize}&page=${page}&key=318c95baaf5446f0a2188c65d62251df`);
     const data = await response.json();
     allGames = data.results.map(game => {
         return {
@@ -13,9 +15,9 @@ async function loadGames() {
         };
     });
     favorites = getFavorites();
-    setupFilter();
-    setupToggle();
     renderGames();
+    renderPagination(data.previous !== null, data.next !== null);
+    setupFilter();
 }
 
 function setupFilter() {
@@ -23,18 +25,7 @@ function setupFilter() {
     const filter = document.getElementById('platform-filter');
     filter.innerHTML = '<option value="all">Vše</option>' +
         Array.from(platforms).map(p => `<option value="${p}">${p}</option>`).join('');
-    filter.addEventListener('change', renderGames);
-}
-
-function setupToggle() {
-    const toggle = document.getElementById('toggle-favorites');
-    toggle.dataset.mode = 'all';
-    toggle.textContent = 'Zobrazit oblíbené';
-    toggle.addEventListener('click', () => {
-        toggle.dataset.mode = toggle.dataset.mode === 'all' ? 'favorites' : 'all';
-        toggle.textContent = toggle.dataset.mode === 'all' ? 'Zobrazit oblíbené' : 'Zobrazit všechny';
-        renderGames();
-    });
+    filter.addEventListener('change', () => loadGames(currentPage));
 }
 
 function renderGames() {
@@ -85,6 +76,43 @@ function renderGames() {
     });
 }
 
+function renderPagination(hasPrev, hasNext) {
+    let pag = document.getElementById('pagination');
+    if (!pag) {
+        pag = document.createElement('div');
+        pag.id = 'pagination';
+        pag.className = 'pagination';
+        document.body.appendChild(pag);
+    }
+
+    pag.innerHTML = '';
+
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = '← Předchozí';
+    prevBtn.disabled = !hasPrev;
+    prevBtn.onclick = () => {
+        if (currentPage > 1) {
+            currentPage--;
+            loadGames(currentPage);
+        }
+    };
+
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = 'Další →';
+    nextBtn.disabled = !hasNext;
+    nextBtn.onclick = () => {
+        currentPage++;
+        loadGames(currentPage);
+    };
+
+    const pageIndicator = document.createElement('span');
+    pageIndicator.textContent = `Stránka ${currentPage}`;
+
+    pag.appendChild(prevBtn);
+    pag.appendChild(pageIndicator);
+    pag.appendChild(nextBtn);
+}
+
 function getFavorites() {
     return JSON.parse(localStorage.getItem('favorites') || '[]');
 }
@@ -99,4 +127,11 @@ function toggleFavorite(title) {
     renderGames();
 }
 
-loadGames();
+document.getElementById('toggle-favorites').addEventListener('click', () => {
+    const toggle = document.getElementById('toggle-favorites');
+    toggle.dataset.mode = toggle.dataset.mode === 'all' ? 'favorites' : 'all';
+    toggle.textContent = toggle.dataset.mode === 'all' ? 'Zobrazit oblíbené' : 'Zobrazit všechny';
+    loadGames(currentPage);
+});
+
+loadGames(currentPage);
