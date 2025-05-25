@@ -1,0 +1,28 @@
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 2em;
+    background-color: #f2f2f2;
+}
+
+h1 {
+    color: #333;
+}
+
+label, select {
+    margin-bottom: 1em;
+    display: inline-block;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    background: white;
+    margin: 0.5em 0;
+    padding: 1em;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
