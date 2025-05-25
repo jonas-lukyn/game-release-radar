@@ -1,5 +1,6 @@
 
 let allGames = [];
+let favorites = [];
 
 async function loadGames() {
     const response = await fetch('https://api.rawg.io/api/games?dates=2025-01-01,2025-12-31&ordering=released&page_size=100&key=318c95baaf5446f0a2188c65d62251df');
@@ -11,7 +12,9 @@ async function loadGames() {
             platform: game.platforms?.map(p => p.platform.name).join(', ') || 'Neznámé'
         };
     });
+    favorites = getFavorites();
     setupFilter();
+    setupToggle();
     renderGames();
 }
 
@@ -20,10 +23,14 @@ function setupFilter() {
     const filter = document.getElementById('platform-filter');
     filter.innerHTML = '<option value="all">Vše</option>' +
         Array.from(platforms).map(p => `<option value="${p}">${p}</option>`).join('');
-
     filter.addEventListener('change', renderGames);
-    document.getElementById('toggle-favorites').addEventListener('click', () => {
-        const toggle = document.getElementById('toggle-favorites');
+}
+
+function setupToggle() {
+    const toggle = document.getElementById('toggle-favorites');
+    toggle.dataset.mode = 'all';
+    toggle.textContent = 'Zobrazit oblíbené';
+    toggle.addEventListener('click', () => {
         toggle.dataset.mode = toggle.dataset.mode === 'all' ? 'favorites' : 'all';
         toggle.textContent = toggle.dataset.mode === 'all' ? 'Zobrazit oblíbené' : 'Zobrazit všechny';
         renderGames();
@@ -34,7 +41,6 @@ function renderGames() {
     const list = document.getElementById('game-list');
     const platform = document.getElementById('platform-filter').value;
     const mode = document.getElementById('toggle-favorites').dataset.mode;
-    const favorites = getFavorites();
 
     list.innerHTML = '';
 
@@ -61,7 +67,6 @@ function renderGames() {
         button.style.marginLeft = '1em';
         button.onclick = () => {
             toggleFavorite(game.title);
-            renderGames();  // okamžité přepočítání bez reloadu
         };
 
         nameCol.style.display = 'inline-block';
@@ -85,13 +90,13 @@ function getFavorites() {
 }
 
 function toggleFavorite(title) {
-    let favorites = getFavorites();
     if (favorites.includes(title)) {
         favorites = favorites.filter(t => t !== title);
     } else {
         favorites.push(title);
     }
     localStorage.setItem('favorites', JSON.stringify(favorites));
+    renderGames();  // okamžitá aktualizace
 }
 
 loadGames();
