@@ -2,7 +2,7 @@
 let allGames = [];
 
 async function loadGames() {
-    const response = await fetch('https://api.rawg.io/api/games?dates=2025-01-01,2025-12-31&ordering=released&key=318c95baaf5446f0a2188c65d62251df');
+    const response = await fetch('https://api.rawg.io/api/games?dates=2025-01-01,2025-12-31&ordering=released&page_size=100&key=318c95baaf5446f0a2188c65d62251df');
     const data = await response.json();
     allGames = data.results.map(game => {
         return {
