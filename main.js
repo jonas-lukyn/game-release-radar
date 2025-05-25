@@ -11,7 +11,8 @@ async function loadGames(page = 1) {
         return {
             title: game.name,
             release_date: game.released,
-            platform: game.platforms?.map(p => p.platform.name).join(', ') || 'Neznámé'
+            platform: game.platforms?.map(p => p.platform.name).join(', ') || 'Neznámé',
+            image: game.background_image || ''
         };
     });
     favorites = getFavorites();
@@ -44,35 +45,22 @@ function renderGames() {
     filteredGames.forEach(game => {
         const isFav = favorites.includes(game.title);
 
-        const li = document.createElement('li');
-        const nameCol = document.createElement('span');
-        const dateCol = document.createElement('span');
-        const platformCol = document.createElement('span');
-        const button = document.createElement('button');
+        const card = document.createElement('div');
+        card.className = 'game-card';
 
-        nameCol.textContent = game.title;
-        dateCol.textContent = game.release_date;
-        platformCol.textContent = game.platform;
-        button.textContent = isFav ? '✓ V oblíbených' : '+ Přidat';
+        card.innerHTML = `
+            <img src="${game.image}" alt="cover">
+            <div class="info">
+                <h3>${game.title}</h3>
+                <p>${game.release_date}</p>
+                <p>${game.platform}</p>
+                <button onclick="toggleFavorite('${game.title}')">
+                    ${isFav ? '✓ V oblíbených' : '+ Přidat'}
+                </button>
+            </div>
+        `;
 
-        button.style.marginLeft = '1em';
-        button.onclick = () => {
-            toggleFavorite(game.title);
-        };
-
-        nameCol.style.display = 'inline-block';
-        nameCol.style.width = '35%';
-        dateCol.style.display = 'inline-block';
-        dateCol.style.width = '20%';
-        platformCol.style.display = 'inline-block';
-        platformCol.style.width = '30%';
-
-        li.appendChild(nameCol);
-        li.appendChild(dateCol);
-        li.appendChild(platformCol);
-        li.appendChild(button);
-
-        list.appendChild(li);
+        list.appendChild(card);
     });
 }
 
