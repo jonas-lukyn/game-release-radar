@@ -1,40 +1,36 @@
 
+let allGames = [];
+
 async function loadGames() {
     const response = await fetch('https://api.rawg.io/api/games?dates=2025-01-01,2025-12-31&ordering=released&key=318c95baaf5446f0a2188c65d62251df');
     const data = await response.json();
-    const games = data.results.map(game => {
+    allGames = data.results.map(game => {
         return {
             title: game.name,
             release_date: game.released,
             platform: game.platforms?.map(p => p.platform.name).join(', ') || 'Neznámé'
         };
     });
-
-    setupFilter(games);
-    setupToggle(games);
+    setupFilter();
+    renderGames();
 }
 
-function setupFilter(games) {
-    const platforms = new Set(games.flatMap(g => g.platform.split(', ')));
+function setupFilter() {
+    const platforms = new Set(allGames.flatMap(g => g.platform.split(', ')));
     const filter = document.getElementById('platform-filter');
     filter.innerHTML = '<option value="all">Vše</option>' +
         Array.from(platforms).map(p => `<option value="${p}">${p}</option>`).join('');
 
-    filter.addEventListener('change', () => {
-        renderGames(games);
-    });
-}
-
-function setupToggle(games) {
-    const toggle = document.getElementById('toggle-favorites');
-    toggle.addEventListener('click', () => {
+    filter.addEventListener('change', renderGames);
+    document.getElementById('toggle-favorites').addEventListener('click', () => {
+        const toggle = document.getElementById('toggle-favorites');
         toggle.dataset.mode = toggle.dataset.mode === 'all' ? 'favorites' : 'all';
         toggle.textContent = toggle.dataset.mode === 'all' ? 'Zobrazit oblíbené' : 'Zobrazit všechny';
-        renderGames(games);
+        renderGames();
     });
 }
 
-function renderGames(games) {
+function renderGames() {
     const list = document.getElementById('game-list');
     const platform = document.getElementById('platform-filter').value;
     const mode = document.getElementById('toggle-favorites').dataset.mode;
@@ -42,22 +38,44 @@ function renderGames(games) {
 
     list.innerHTML = '';
 
-    let filteredGames = games.filter(game => 
+    let filteredGames = allGames.filter(game =>
         platform === 'all' || game.platform.includes(platform));
     if (mode === 'favorites') {
         filteredGames = filteredGames.filter(game => favorites.includes(game.title));
     }
 
     filteredGames.forEach(game => {
-        const li = document.createElement('li');
         const isFav = favorites.includes(game.title);
 
-        li.innerHTML = `
-            ${game.title} – ${game.release_date} (${game.platform})
-            <button onclick="toggleFavorite('${game.title}')" style="margin-left:1em;">
-                ${isFav ? '✓ V oblíbených' : '+ Přidat'}
-            </button>
-        `;
+        const li = document.createElement('li');
+        const nameCol = document.createElement('span');
+        const dateCol = document.createElement('span');
+        const platformCol = document.createElement('span');
+        const button = document.createElement('button');
+
+        nameCol.textContent = game.title;
+        dateCol.textContent = game.release_date;
+        platformCol.textContent = game.platform;
+        button.textContent = isFav ? '✓ V oblíbených' : '+ Přidat';
+
+        button.style.marginLeft = '1em';
+        button.onclick = () => {
+            toggleFavorite(game.title);
+            renderGames();  // okamžité přepočítání bez reloadu
+        };
+
+        nameCol.style.display = 'inline-block';
+        nameCol.style.width = '35%';
+        dateCol.style.display = 'inline-block';
+        dateCol.style.width = '20%';
+        platformCol.style.display = 'inline-block';
+        platformCol.style.width = '30%';
+
+        li.appendChild(nameCol);
+        li.appendChild(dateCol);
+        li.appendChild(platformCol);
+        li.appendChild(button);
+
         list.appendChild(li);
     });
 }
@@ -74,7 +92,6 @@ function toggleFavorite(title) {
         favorites.push(title);
     }
     localStorage.setItem('favorites', JSON.stringify(favorites));
-    loadGames(); // refresh
 }
 
 loadGames();
