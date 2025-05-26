@@ -5,7 +5,14 @@ let isLoading = false;
 const genresMap = {};
 const genreRows = {};
 
-async function loadGames(page = 1) {
+async function loadMultiplePages(pagesToLoad = 5) {
+  for (let i = 0; i < pagesToLoad; i++) {
+    await loadGames(currentPage);
+    currentPage++;
+  }
+}
+
+async function loadGames(page) {
   isLoading = true;
   const response = await fetch(
     `https://api.rawg.io/api/games?dates=2025-01-01,2025-12-31&ordering=-added&page_size=40&page=${page}&key=318c95baaf5446f0a2188c65d62251df`
@@ -31,15 +38,10 @@ async function loadGames(page = 1) {
 }
 
 function renderNewGames(games) {
-  const seenGenres = new Set();
-
   games.forEach((game) => {
     const genres = game.genres?.map((g) => g.name) || ["Nezařazeno"];
     genres.forEach((genre) => {
-      seenGenres.add(genre);
-
       if (!genreRows[genre]) {
-        // Vytvořit nový řádek, pokud ještě neexistuje
         const section = document.createElement("section");
         section.className = "row-section";
 
@@ -53,8 +55,7 @@ function renderNewGames(games) {
 
         row.addEventListener("scroll", () => {
           if (row.scrollLeft + row.clientWidth >= row.scrollWidth - 100 && !isLoading) {
-            currentPage++;
-            loadGames(currentPage);
+            loadGames(currentPage++);
           }
         });
 
@@ -82,4 +83,4 @@ function renderNewGames(games) {
   });
 }
 
-loadGames(currentPage);
+loadMultiplePages(5);
