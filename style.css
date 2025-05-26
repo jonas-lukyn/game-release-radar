@@ -1,90 +1,69 @@
 
 body {
-    font-family: Arial, sans-serif;
-    margin: 2em;
-    background-color: #f2f2f2;
-    color: #333;
-    position: relative;
-    overflow-x: hidden;
-    transition: background-color 0.3s, color 0.3s;
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #141414;
+  color: white;
+  overflow-x: hidden;
 }
 
-.dark {
-    background-color: #1e1e1e;
-    color: #eee;
+header {
+  background-color: black;
+  padding: 1em 2em;
 }
 
-h1 {
-    margin: 0 0 1em 0;
+header h1 {
+  margin: 0;
+  font-size: 1.6em;
 }
 
-label, select {
-    margin-bottom: 1em;
-    display: inline-block;
+.rows-wrapper {
+  padding: 2em;
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
 }
 
-.actions {
-    margin-bottom: 1em;
-    display: flex;
-    gap: 1em;
-    align-items: center;
+.row-section {
+  display: flex;
+  flex-direction: column;
 }
 
-.theme-toggle {
-    background: none;
-    border: none;
-    font-size: 1.5em;
-    cursor: pointer;
-    transition: transform 0.3s;
+.row-title {
+  font-size: 1.2em;
+  margin: 0 0 0.5em 0.2em;
 }
 
-.theme-toggle:hover {
-    transform: scale(1.1);
+.row {
+  display: flex;
+  gap: 0.5em;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding-bottom: 0.5em;
 }
 
-ul {
-    list-style-type: none;
-    padding: 0;
+.row::-webkit-scrollbar {
+  display: none;
 }
 
-li {
-    background: white;
-    margin: 0.5em 0;
-    padding: 1em;
-    border-radius: 5px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    transition: background-color 0.3s, color 0.3s;
+.game-tile {
+  flex: 0 0 auto;
+  width: 180px;
+  height: 100px;
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+  background-color: #222;
+  transition: transform 0.2s ease-in-out;
 }
 
-.dark li {
-    background: #2a2a2a;
-    color: #eee;
+.game-tile:hover {
+  transform: scale(1.1);
 }
 
-/* Pikachu loop animation from right to left across screen */
-.pikachu-loop {
-    position: absolute;
-    top: 10px;
-    right: -100px;
-    width: 80px;
-    z-index: 10;
-    animation: run-left 10s linear infinite;
-}
-
-@keyframes run-left {
-    0% {
-        right: -100px;
-        opacity: 0;
-    }
-    10% {
-        opacity: 1;
-    }
-    90% {
-        right: 100vw;
-        opacity: 1;
-    }
-    100% {
-        right: 100vw;
-        opacity: 0;
-    }
+.game-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
