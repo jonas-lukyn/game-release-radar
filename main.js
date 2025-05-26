@@ -1,12 +1,10 @@
 
 const container = document.getElementById("game-container");
-let favorites = [];
 let currentPage = 1;
 let isLoading = false;
-let allGames = [];
-let genresMap = {};
+const genresMap = {};
+const genreRows = {};
 
-// Načítání nové stránky her
 async function loadGames(page = 1) {
   isLoading = true;
   const response = await fetch(
@@ -14,9 +12,6 @@ async function loadGames(page = 1) {
   );
   const data = await response.json();
   const games = data.results;
-
-  // Ukládáme globálně, pokud budeš chtít ještě další manipulace
-  allGames = allGames.concat(games);
 
   games.forEach((game) => {
     const genres = game.genres?.map((g) => g.name) || ["Nezařazeno"];
@@ -26,57 +21,64 @@ async function loadGames(page = 1) {
       }
       genresMap[genre].push({
         title: game.name,
-        image: game.background_image,
+        image: game.background_image
       });
     });
   });
 
-  renderGenres(genresMap);
+  renderNewGames(games);
   isLoading = false;
 }
 
-function renderGenres(genreData) {
-  container.innerHTML = ""; // Vymažeme, aby se celý blok přegeneroval (jednodušší implementace)
+function renderNewGames(games) {
+  const seenGenres = new Set();
 
-  Object.entries(genreData).forEach(([genre, games]) => {
-    const section = document.createElement("section");
-    section.className = "row-section";
+  games.forEach((game) => {
+    const genres = game.genres?.map((g) => g.name) || ["Nezařazeno"];
+    genres.forEach((genre) => {
+      seenGenres.add(genre);
 
-    const title = document.createElement("h2");
-    title.className = "row-title";
-    title.textContent = genre;
+      if (!genreRows[genre]) {
+        // Vytvořit nový řádek, pokud ještě neexistuje
+        const section = document.createElement("section");
+        section.className = "row-section";
 
-    const row = document.createElement("div");
-    row.className = "row";
-    row.dataset.genre = genre;
+        const title = document.createElement("h2");
+        title.className = "row-title";
+        title.textContent = genre;
 
-    games.forEach((game) => {
+        const row = document.createElement("div");
+        row.className = "row";
+        row.dataset.genre = genre;
+
+        row.addEventListener("scroll", () => {
+          if (row.scrollLeft + row.clientWidth >= row.scrollWidth - 100 && !isLoading) {
+            currentPage++;
+            loadGames(currentPage);
+          }
+        });
+
+        section.appendChild(title);
+        section.appendChild(row);
+        container.appendChild(section);
+        genreRows[genre] = row;
+      }
+
       const tile = document.createElement("div");
       tile.className = "game-tile";
 
       const link = document.createElement("a");
-      link.href = `https://www.igdb.com/search?type=1&q=${encodeURIComponent(game.title)}`;
+      link.href = `https://www.igdb.com/search?type=1&q=${encodeURIComponent(game.name)}`;
       link.target = "_blank";
 
       const img = document.createElement("img");
-      img.src = game.image || "";
-      img.alt = game.title;
+      img.src = game.background_image || "";
+      img.alt = game.name;
 
       link.appendChild(img);
       tile.appendChild(link);
-      row.appendChild(tile);
+      genreRows[genre].appendChild(tile);
     });
-
-    row.addEventListener("scroll", () => {
-      if (row.scrollLeft + row.clientWidth >= row.scrollWidth - 100 && !isLoading) {
-        currentPage++;
-        loadGames(currentPage);
-      }
-    });
-
-    section.appendChild(title);
-    section.appendChild(row);
-    container.appendChild(section);
   });
 }
 
