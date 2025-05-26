@@ -48,8 +48,8 @@ header h1 {
 
 .game-tile {
   flex: 0 0 auto;
-  width: 180px;
-  height: 100px;
+  width: 270px;
+  height: 150px;
   border-radius: 5px;
   overflow: hidden;
   position: relative;
@@ -58,12 +58,35 @@ header h1 {
 }
 
 .game-tile:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 .game-tile img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
+  transition: filter 0.2s;
+}
+
+.game-tile:hover img {
+  filter: brightness(0.3);
+}
+
+.game-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 0.6em;
+  color: white;
+  font-size: 0.85em;
+  background: rgba(0, 0, 0, 0.6);
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  line-height: 1.3;
+}
+
+.game-tile:hover .game-info {
+  opacity: 1;
 }
