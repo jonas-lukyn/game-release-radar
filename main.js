@@ -26,11 +26,7 @@ async function loadGames(page) {
       if (!genresMap[genre]) {
         genresMap[genre] = [];
       }
-      genresMap[genre].push({
-        title: game.name,
-        date: game.released,
-        image: game.background_image
-      });
+      genresMap[genre].push(game);
     });
   });
 
@@ -70,16 +66,16 @@ function renderNewGames(games) {
       tile.className = "game-tile";
 
       const link = document.createElement("a");
-      link.href = `https://www.igdb.com/search?type=1&q=${encodeURIComponent(game.title)}`;
+      link.href = `https://www.igdb.com/search?type=1&q=${encodeURIComponent(game.name)}`;
       link.target = "_blank";
 
       const img = document.createElement("img");
-      img.src = game.image || "";
-      img.alt = game.title;
+      img.src = game.background_image || "";
+      img.alt = game.name;
 
       const info = document.createElement("div");
       info.className = "game-info";
-      info.innerHTML = `<strong>${game.title}</strong><br>${game.date || 'TBA'}`;
+      info.innerHTML = `<strong>${game.name}</strong><br>${game.released || 'TBA'}`;
 
       link.appendChild(img);
       tile.appendChild(link);
