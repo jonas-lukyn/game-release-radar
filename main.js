@@ -1,104 +1,63 @@
 
-let allGames = [];
 let favorites = [];
 let currentPage = 1;
-const pageSize = 20;
+const pageSize = 40;
 
 async function loadGames(page = 1) {
     const response = await fetch(`https://api.rawg.io/api/games?dates=2025-01-01,2025-12-31&ordering=-added&page_size=${pageSize}&page=${page}&key=318c95baaf5446f0a2188c65d62251df`);
     const data = await response.json();
-    allGames = data.results.map(game => {
-        return {
-            title: game.name,
-            release_date: game.released,
-            platform: game.platforms?.map(p => p.platform.name).join(', ') || 'Neznámé',
-            image: game.background_image || ''
-        };
+
+    const gamesByGenre = {};
+
+    data.results.forEach(game => {
+        const genres = game.genres?.map(g => g.name) || ["Nezařazeno"];
+        genres.forEach(genre => {
+            if (!gamesByGenre[genre]) {
+                gamesByGenre[genre] = [];
+            }
+            gamesByGenre[genre].push({
+                title: game.name,
+                release_date: game.released,
+                platform: game.platforms?.map(p => p.platform.name).join(', ') || 'Neznámé',
+                image: game.background_image || '',
+            });
+        });
     });
+
     favorites = getFavorites();
-    renderGames();
-    renderPagination(data.previous !== null, data.next !== null);
-    setupFilter();
+    renderGameRows(gamesByGenre);
 }
 
-function setupFilter() {
-    const platforms = new Set(allGames.flatMap(g => g.platform.split(', ')));
-    const filter = document.getElementById('platform-filter');
-    filter.innerHTML = '<option value="all">Vše</option>' +
-        Array.from(platforms).map(p => `<option value="${p}">${p}</option>`).join('');
-    filter.addEventListener('change', () => loadGames(currentPage));
-}
+function renderGameRows(gamesByGenre) {
+    const container = document.getElementById('game-list');
+    container.innerHTML = '';
+    Object.keys(gamesByGenre).forEach(genre => {
+        const section = document.createElement('section');
+        const title = document.createElement('h2');
+        title.textContent = genre;
+        title.className = 'row-title';
 
-function renderGames() {
-    const list = document.getElementById('game-list');
-    const platform = document.getElementById('platform-filter').value;
-    const mode = document.getElementById('toggle-favorites').dataset.mode;
+        const row = document.createElement('div');
+        row.className = 'row';
 
-    list.innerHTML = '';
+        gamesByGenre[genre].forEach(game => {
+            const isFav = favorites.includes(game.title);
+            const tile = document.createElement('div');
+            tile.className = 'game-tile';
 
-    let filteredGames = allGames.filter(game =>
-        platform === 'all' || game.platform.includes(platform));
-    if (mode === 'favorites') {
-        filteredGames = filteredGames.filter(game => favorites.includes(game.title));
-    }
+            tile.innerHTML = `
+                <img src="${game.image}" alt="${game.title}">
+            `;
+            tile.title = game.title + " (" + game.release_date + ")\n" + game.platform;
+            tile.onclick = () => toggleFavorite(game.title);
 
-    filteredGames.forEach(game => {
-        const isFav = favorites.includes(game.title);
+            row.appendChild(tile);
+        });
 
-        const card = document.createElement('div');
-        card.className = 'game-card';
-
-        card.innerHTML = `
-            <img src="${game.image}" alt="cover">
-            <div class="info">
-                <h3>${game.title}</h3>
-                <p>${game.release_date}</p>
-                <p>${game.platform}</p>
-                <button onclick="toggleFavorite('${game.title}')">
-                    ${isFav ? '✓ V oblíbených' : '+ Přidat'}
-                </button>
-            </div>
-        `;
-
-        list.appendChild(card);
+        section.appendChild(title);
+        section.appendChild(row);
+        container.appendChild(section);
     });
-}
-
-function renderPagination(hasPrev, hasNext) {
-    let pag = document.getElementById('pagination');
-    if (!pag) {
-        pag = document.createElement('div');
-        pag.id = 'pagination';
-        pag.className = 'pagination';
-        document.body.appendChild(pag);
-    }
-
-    pag.innerHTML = '';
-
-    const prevBtn = document.createElement('button');
-    prevBtn.textContent = '← Předchozí';
-    prevBtn.disabled = !hasPrev;
-    prevBtn.onclick = () => {
-        if (currentPage > 1) {
-            currentPage--;
-            loadGames(currentPage);
-        }
-    };
-
-    const nextBtn = document.createElement('button');
-    nextBtn.textContent = 'Další →';
-    nextBtn.disabled = !hasNext;
-    nextBtn.onclick = () => {
-        currentPage++;
-        loadGames(currentPage);
-    };
-
-    const pageIndicator = document.createElement('span');
-    pageIndicator.textContent = `Stránka ${currentPage}`;
-
-    pag.appendChild(prevBtn);
-    pag.appendChild(pageIndicator);
-    pag.appendChild(nextBtn);
 }
 
 function getFavorites() {
@@ -112,14 +71,6 @@ function toggleFavorite(title) {
         favorites.push(title);
     }
     localStorage.setItem('favorites', JSON.stringify(favorites));
-    renderGames();
 }
-
-document.getElementById('toggle-favorites').addEventListener('click', () => {
-    const toggle = document.getElementById('toggle-favorites');
-    toggle.dataset.mode = toggle.dataset.mode === 'all' ? 'favorites' : 'all';
-    toggle.textContent = toggle.dataset.mode === 'all' ? 'Zobrazit oblíbené' : 'Zobrazit všechny';
-    loadGames(currentPage);
-});
 
 loadGames(currentPage);
